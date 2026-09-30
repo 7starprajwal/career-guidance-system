@@ -65,10 +65,62 @@ app.use(helmet());
 // CORS
 // ==========================================
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://career-guidance-system-pink.vercel.app",
+];
+
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(
+    process.env.FRONTEND_URL.replace(/\/$/, "")
+  );
+}
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+      // Allow requests without an Origin header
+      // such as server-to-server requests.
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const normalizedOrigin =
+        origin.replace(/\/$/, "");
+
+      if (
+        allowedOrigins.includes(
+          normalizedOrigin
+        )
+      ) {
+        return callback(null, true);
+      }
+
+      console.warn(
+        `CORS blocked origin: ${origin}`
+      );
+
+      return callback(
+        new Error("Not allowed by CORS")
+      );
+    },
+
     credentials: true,
+
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+      "OPTIONS",
+    ],
+
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+    ],
   })
 );
 
@@ -89,7 +141,8 @@ app.use(
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "Career Guidance System API is running",
+    message:
+      "Career Guidance System API is running",
   });
 });
 
@@ -123,9 +176,15 @@ app.use("/api/feedback", feedbackRoutes);
 
 app.use("/api/admin", adminRoutes);
 
-app.use("/api/admin/content", adminContentRoutes);
+app.use(
+  "/api/admin/content",
+  adminContentRoutes
+);
 
-app.use("/api/admin/courses", adminCourseRoutes);
+app.use(
+  "/api/admin/courses",
+  adminCourseRoutes
+);
 
 // ==========================================
 // 404 HANDLER
@@ -160,7 +219,12 @@ const startServer = async () => {
 
     app.listen(PORT, () => {
       console.log(
-        `Server running on http://localhost:${PORT}`
+        `Server running on port ${PORT}`
+      );
+
+      console.log(
+        "Allowed CORS origins:",
+        allowedOrigins
       );
     });
   } catch (error) {
