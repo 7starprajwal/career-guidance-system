@@ -62,37 +62,54 @@ const app = express();
 app.use(helmet());
 
 // ==========================================
-// CORS
+// CORS CONFIGURATION
 // ==========================================
 
 const allowedOrigins = [
+  // Local development
   "http://localhost:5173",
   "http://localhost:5174",
+
+  // Current Vercel production domain
+  "https://career-guidance-system-nhfx.vercel.app",
+
+  // Previous Vercel domain
   "https://career-guidance-system-pink.vercel.app",
 ];
 
+// ==========================================
+// ADD FRONTEND_URL FROM RENDER ENVIRONMENT
+// ==========================================
+
 if (process.env.FRONTEND_URL) {
-  allowedOrigins.push(
-    process.env.FRONTEND_URL.replace(/\/$/, "")
-  );
+  const frontendUrl = process.env.FRONTEND_URL
+    .trim()
+    .replace(/\/$/, "");
+
+  if (!allowedOrigins.includes(frontendUrl)) {
+    allowedOrigins.push(frontendUrl);
+  }
 }
+
+// ==========================================
+// CORS MIDDLEWARE
+// ==========================================
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests without an Origin header
-      // such as server-to-server requests.
+      // Allow requests without Origin header
+      // Example: server-to-server requests
       if (!origin) {
         return callback(null, true);
       }
 
-      const normalizedOrigin =
-        origin.replace(/\/$/, "");
+      const normalizedOrigin = origin
+        .trim()
+        .replace(/\/$/, "");
 
       if (
-        allowedOrigins.includes(
-          normalizedOrigin
-        )
+        allowedOrigins.includes(normalizedOrigin)
       ) {
         return callback(null, true);
       }
