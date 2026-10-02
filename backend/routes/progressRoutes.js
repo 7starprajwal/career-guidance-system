@@ -7,19 +7,9 @@ const {
 
 const protect = require("../middleware/authMiddleware");
 
-const router =
-  express.Router();
+const router = express.Router();
 
-router.get(
-  "/",
-  protect,
-  getProgress
-);
-
-router.post(
-  "/",
-  protect,
-  updateProgress
-);
+router.get("/", protect, getProgress);
+router.post("/", protect, updateProgress);
 
 module.exports = router;

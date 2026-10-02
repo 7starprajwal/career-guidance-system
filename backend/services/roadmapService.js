@@ -1,4 +1,12 @@
+// ============================================================
+// ROADMAP TEMPLATES
+// ============================================================
+
 const ROADMAP_TEMPLATES = {
+  // ==========================================================
+  // FULL STACK DEVELOPER
+  // ==========================================================
+
   "Full Stack Developer": [
     {
       skill: "HTML",
@@ -37,7 +45,10 @@ const ROADMAP_TEMPLATES = {
       phase: 2,
       duration: "2 weeks",
       level: "Intermediate",
-      prerequisites: ["HTML", "CSS"],
+      prerequisites: [
+        "HTML",
+        "CSS",
+      ],
       topics: [
         "Variables and data types",
         "Functions",
@@ -192,15 +203,160 @@ const ROADMAP_TEMPLATES = {
       ],
     },
   ],
+
+  // ==========================================================
+  // BACKEND DEVELOPER
+  // ==========================================================
+
+  "Backend Developer": [
+    {
+      skill: "JavaScript",
+      phase: 1,
+      duration: "2 weeks",
+      level: "Intermediate",
+      prerequisites: [],
+      topics: [
+        "Variables and data types",
+        "Functions",
+        "Arrays and objects",
+        "ES6 features",
+        "Modules",
+        "Async JavaScript",
+        "Promises",
+        "Error handling",
+      ],
+    },
+
+    {
+      skill: "Node.js",
+      phase: 2,
+      duration: "1 week",
+      level: "Intermediate",
+      prerequisites: [
+        "JavaScript",
+      ],
+      topics: [
+        "Node.js fundamentals",
+        "Modules",
+        "npm",
+        "File system",
+        "HTTP",
+        "Environment variables",
+        "Async programming",
+      ],
+    },
+
+    {
+      skill: "Express.js",
+      phase: 3,
+      duration: "1 week",
+      level: "Intermediate",
+      prerequisites: [
+        "Node.js",
+      ],
+      topics: [
+        "Express setup",
+        "Routing",
+        "Controllers",
+        "Middleware",
+        "Error handling",
+        "Request and response",
+        "Project structure",
+      ],
+    },
+
+    {
+      skill: "MongoDB",
+      phase: 4,
+      duration: "1 week",
+      level: "Intermediate",
+      prerequisites: [
+        "Node.js",
+      ],
+      topics: [
+        "MongoDB fundamentals",
+        "Databases",
+        "Collections",
+        "Documents",
+        "CRUD operations",
+        "Queries",
+        "Indexes",
+        "Mongoose",
+      ],
+    },
+
+    {
+      skill: "REST API",
+      phase: 5,
+      duration: "1 week",
+      level: "Intermediate",
+      prerequisites: [
+        "Express.js",
+      ],
+      topics: [
+        "REST architecture",
+        "HTTP methods",
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE",
+        "HTTP status codes",
+        "API testing",
+      ],
+    },
+
+    {
+      skill: "Authentication",
+      phase: 6,
+      duration: "1 week",
+      level: "Intermediate",
+      prerequisites: [
+        "REST API",
+      ],
+      topics: [
+        "Authentication",
+        "Authorization",
+        "Password hashing",
+        "bcrypt",
+        "JWT",
+        "Protected routes",
+        "Role-based access",
+      ],
+    },
+
+    {
+      skill: "Git",
+      phase: 7,
+      duration: "3 days",
+      level: "Beginner",
+      prerequisites: [],
+      topics: [
+        "Git basics",
+        "Repositories",
+        "Commit",
+        "Branch",
+        "Merge",
+        "GitHub",
+        "Pull requests",
+      ],
+    },
+  ],
 };
 
-const normalizeSkill = (
-  skill
-) => {
+// ============================================================
+// NORMALIZE SKILL
+// ============================================================
+
+const normalizeSkill = (skill) => {
   return String(skill || "")
     .trim()
     .toLowerCase();
 };
+
+// ============================================================
+// FIND ROADMAP TEMPLATE
+// ============================================================
 
 const findRoadmapTemplate = (
   careerName
@@ -224,6 +380,10 @@ const findRoadmapTemplate = (
     : [];
 };
 
+// ============================================================
+// CREATE ROADMAP
+// ============================================================
+
 const createRoadmap = (
   careerName,
   skillGap
@@ -233,41 +393,81 @@ const createRoadmap = (
       careerName
     );
 
+  // ----------------------------------------------------------
+  // GET MISSING SKILLS
+  // ----------------------------------------------------------
+
   const missingSkills =
-    (skillGap?.missingSkills ||
-      []).map((item) =>
+    (
+      skillGap?.missingSkills ||
+      []
+    )
+      .map((item) =>
         typeof item === "string"
           ? item
-          : item.skill
-      );
+          : item?.skill
+      )
+      .filter(Boolean);
 
   const normalizedMissing =
     missingSkills.map(
       normalizeSkill
     );
 
-  const roadmap =
-    templates
-      .filter((item) =>
-        normalizedMissing.includes(
-          normalizeSkill(
-            item.skill
-          )
-        )
-      )
-      .map((item) => ({
-        ...item,
-
-        status: "not-started",
-
-        progress: 0,
-      }));
+  // ----------------------------------------------------------
+  // GET MATCHED SKILLS
+  // ----------------------------------------------------------
 
   const completedSkills =
     (
       skillGap?.matchedSkills ||
       []
-    ).map(normalizeSkill);
+    )
+      .map((item) =>
+        typeof item === "string"
+          ? item
+          : item?.skill
+      )
+      .filter(Boolean)
+      .map(normalizeSkill);
+
+  // ----------------------------------------------------------
+  // CREATE ROADMAP
+  // ----------------------------------------------------------
+
+  const roadmap = [];
+
+  // ----------------------------------------------------------
+  // MISSING SKILLS
+  // ----------------------------------------------------------
+
+  templates.forEach(
+    (item) => {
+      const normalized =
+        normalizeSkill(
+          item.skill
+        );
+
+      if (
+        normalizedMissing.includes(
+          normalized
+        )
+      ) {
+        roadmap.push({
+          ...item,
+
+          status:
+            "not-started",
+
+          progress: 0,
+        });
+      }
+    }
+  );
+
+  // ----------------------------------------------------------
+  // COMPLETED SKILLS
+  // ----------------------------------------------------------
 
   templates.forEach(
     (item) => {
@@ -284,7 +484,8 @@ const createRoadmap = (
         roadmap.push({
           ...item,
 
-          status: "completed",
+          status:
+            "completed",
 
           progress: 100,
         });
@@ -292,10 +493,18 @@ const createRoadmap = (
     }
   );
 
+  // ----------------------------------------------------------
+  // SORT
+  // ----------------------------------------------------------
+
   roadmap.sort(
     (a, b) =>
       a.phase - b.phase
   );
+
+  // ----------------------------------------------------------
+  // SUMMARY
+  // ----------------------------------------------------------
 
   const totalSteps =
     roadmap.length;
@@ -306,6 +515,10 @@ const createRoadmap = (
         item.status ===
         "completed"
     ).length;
+
+  const remainingSteps =
+    totalSteps -
+    completedSteps;
 
   const overallProgress =
     totalSteps === 0
@@ -326,13 +539,15 @@ const createRoadmap = (
 
     completedSteps,
 
-    remainingSteps:
-      totalSteps -
-      completedSteps,
+    remainingSteps,
 
     roadmap,
   };
 };
+
+// ============================================================
+// EXPORT
+// ============================================================
 
 module.exports = {
   ROADMAP_TEMPLATES,

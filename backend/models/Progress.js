@@ -27,6 +27,39 @@ const progressSchema = new mongoose.Schema(
       trim: true,
     },
 
+    // Tells us whether this progress belongs
+    // to a course or to a roadmap skill.
+    source: {
+      type: String,
+      enum: ["course", "roadmap"],
+      default: "course",
+      index: true,
+    },
+
+    // Used mainly by the Roadmap page.
+    // Example:
+    // [
+    //   { topic: "Functions", completed: true },
+    //   { topic: "Arrays and objects", completed: false }
+    // ]
+    topicProgress: {
+      type: [
+        {
+          topic: {
+            type: String,
+            required: true,
+            trim: true,
+          },
+
+          completed: {
+            type: Boolean,
+            default: false,
+          },
+        },
+      ],
+      default: [],
+    },
+
     progress: {
       type: Number,
       min: 0,
@@ -36,11 +69,7 @@ const progressSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: [
-        "not-started",
-        "in-progress",
-        "completed",
-      ],
+      enum: ["not-started", "in-progress", "completed"],
       default: "not-started",
     },
 
@@ -54,6 +83,8 @@ const progressSchema = new mongoose.Schema(
   }
 );
 
+// One user can have one progress record
+// for each course/roadmap item.
 progressSchema.index(
   {
     user: 1,
@@ -64,8 +95,4 @@ progressSchema.index(
   }
 );
 
-module.exports =
-  mongoose.model(
-    "Progress",
-    progressSchema
-  );
+module.exports = mongoose.model("Progress", progressSchema);
